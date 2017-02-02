@@ -10,6 +10,8 @@ The build environment (Jenkins) for DeterDevOpsTryout
 
 * Build the VM
 
+This takes about 10 minutes on a MacBook Pro
+
     cd Build
     source ./environment ; vagrant up
 
@@ -32,4 +34,6 @@ Or
     sudo su -
     docker-compose -f docker-compose.yml -f docker-compose.ci.yml up -d
 
+## References
 
+* [Using Docker](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-compose-on-centos-7)
