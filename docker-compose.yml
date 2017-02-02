@@ -1,0 +1,48 @@
+version: '2'
+services:
+
+# Ref https://hub.docker.com/_/jenkins/
+  jenkins:
+    image: jenkins
+    container_name: jenkins
+    restart: always
+    ports:
+#      - 8180:8080
+      - 50000:50000
+    volumes:
+      - /singlefs-1/jenkins:/var/singlefs-1
+      - /var/run/postgresql/.s.PGSQL.5432
+      - /home/git:/home/git
+    links:
+      - postgres
+    user: root
+
+  postgres:
+    image: postgres
+    container_name: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=pizza
+      - POSTGRES_DB=fridge
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - /var/lib/postgresql/data/pgdata:/var/lib/postgresql/data/pgdata
+      - /var/run/postgresql/.s.PGSQL.5432
+      - /home/git:/home/git
+
+  my-sql:
+    environment:
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=pizza
+      - MYSQL_DB=bistrofridge
+
+  docker-ui:
+    container_name: docker-ui
+    image: uifd/ui-for-docker
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - 9000:9000
+    privileged: true

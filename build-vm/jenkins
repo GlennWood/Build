@@ -1,0 +1,27 @@
+#!/bin/bash
+source /vagrant/environment $VM_MACHINE
+_leaf=$(basename $0)
+
+  echo "BEGIN build-vm/$_leaf"
+
+  # Install a Jenkins-compatible version of java
+  ### Ref https://wiki.jenkins-ci.org/display/JENKINS/Installing+Jenkins+on+Red+Hat+distributions#InstallingJenkinsonRedHatdistributions-ImportantNoteonCentOSJava
+  yum -y install java-1.8.0-openjdk
+  java -version
+
+  ### Ref https://wiki.jenkins-ci.org/display/JENKINS/Installing+Jenkins+on+Red+Hat+distributions
+  wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo
+  rpm --import https://jenkins-ci.org/redhat/jenkins-ci.org.key
+  yum -y install jenkins
+  service jenkins start
+  chkconfig jenkins on
+
+  firewall-cmd --zone=public --add-port=8080/tcp --permanent
+  firewall-cmd --zone=public --add-service=http --permanent
+  firewall-cmd --reload
+
+  cat >> /etc/profile.d/00_vagrant_environment.sh << BASHRC_INIT
+export DETERDEVOPSTRYOUT_BUILDVM_JENKINS_DONE='$(echo DONE `date`)'
+BASHRC_INIT
+
+  echo "END build-vm/$_leaf"

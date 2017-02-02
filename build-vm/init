@@ -1,0 +1,30 @@
+#!/bin/bash
+source /vagrant/environment $VM_MACHINE
+_leaf=$(basename $0)
+
+  echo "BEGIN build-vm/$_leaf"
+  
+  ln -sf /usr/share/zoneinfo/${VM_ZONEINFO} /etc/localtime
+
+  yum -y install deltarpm
+
+  ### Vagrant/Virtualbox keeps losing /vagrant, so we preserve that content here
+  yum -y install rsync
+  rsync -av --exclude="*.box" /vagrant/* /vagrant/.git* /home/vagrant/
+
+  VM_LOCAL_IP=`ip addr show | grep inet | grep -v inet6 | grep -v 10.0.2 | grep /24 | sed 's/.*inet\s*//' | cut -f1 -d'/'`
+
+  ###hostname jenkins-001.deterlab.work
+
+  yum -y makecache fast
+
+  cat >> /etc/profile.d/00_vagrant_environment.sh << BASHRC_INIT
+export VM_LOCAL_IP=$VM_LOCAL_IP
+export VM_PORT_PREFIX=$VM_PORT_PREFIX
+export VM_ZONEINFO=$VM_ZONEINFO
+export DOCKER_VERSION=$DOCKER_VERSION
+export DOCKER_COMPOSE_VERSION=$DOCKER_COMPOSE_VERSION
+export DETERDEVOPSTRYOUT_BUILDVM_INIT_DONE='$(echo DONE `date`)'
+BASHRC_INIT
+
+  echo "END build-vm/$_leaf"

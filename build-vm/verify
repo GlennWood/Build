@@ -1,0 +1,20 @@
+#!/bin/bash
+_leaf=$(basename $0)
+
+  echo "BEGIN build-vm/$_leaf"
+  echo
+
+  echo "JENKINS: "`cat /var/lib/jenkins/jenkins.install.UpgradeWizard.state`
+  echo "DOCKER:  "`docker --version`
+  echo "COMPOSE: "`docker-compose --version`
+  echo "JAVA:    "$(java -version 2>&1 | grep 'openjdk version' | cut -f2 -d'"')
+
+  _LOCAL_IP=`ip addr show | grep inet | grep -v inet6 | grep -v 10.0.2 | grep /24 | sed 's/.*inet\s*//' | cut -f1 -d'/'`
+  echo "HOSTNAME: "`hostname`" IP_ADDR: $_LOCAL_IP PORT_PREFIX: $VM_PORT_PREFIX"
+  
+  sudo su - << VAGRANT_ENV
+echo "export DETERDEVOPSTRYOUT_BUILDVM_VERIFY_DONE='$(echo DONE `date`)'" >> /etc/profile.d/00_vagrant_environment.sh
+VAGRANT_ENV
+
+  echo
+  echo "END build-vm/$_leaf"

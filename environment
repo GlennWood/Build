@@ -1,0 +1,13 @@
+#!/bin/bash
+
+### Configures the Vagrantfile for the CI/CD VM(s) in which to build and test DeterDevOpsTryout
+
+  export VM_CN=jenkins-001.deterlab.work
+  export VM_PORT_PREFIX=67
+  export VM_ZONEINFO=US/Pacific
+
+  export VM_CPUS=1
+  export VM_MEMORY=4096
+
+  export DOCKER_VERSION=1.13.0
+  export DOCKER_COMPOSE_VERSION=1.10.0

@@ -1,0 +1,10 @@
+#!/bin/bash
+source /vagrant/environment $VM_MACHINE
+_leaf=$(basename $0)
+
+  echo "BEGIN build-vm/$_leaf"
+
+  systemctl daemon-reload
+
+  echo "export DETERDEVOPSTRYOUT_BUILDVM_FINAL_DONE='$(echo DONE `date`)'" >> /etc/profile.d/00_vagrant_environment.sh
+  echo "END build-vm/$_leaf"
