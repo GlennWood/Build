@@ -12,8 +12,19 @@ _leaf=$(basename $0)
   ### Ref https://wiki.jenkins-ci.org/display/JENKINS/Installing+Jenkins+on+Red+Hat+distributions
   wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo
   rpm --import https://jenkins-ci.org/redhat/jenkins-ci.org.key
-  yum -y install jenkins
-  service jenkins start
+  yum -y install jenkins 'graphviz*'
+
+  JOBS='Customer Waiter SousChef PizzaChef Mixer WoodbrickOven'
+  pushd /var/lib/jenkins
+  [ ! -d jobs ] && mkdir jobs && chown -R jenkins:jenkins jobs
+  for job in $JOBS; do
+	[ ! -d jobs/$job ] && mkdir jobs/$job
+	yes | cp -f /vagrant/config/${job}.xml jobs/$job/config.xml 2>&1 | grep -v 'cp: overwrite'
+	chown jenkins:jenkins jobs/$job/config.xml
+  done
+  popd
+
+  service jenkins restart
   chkconfig jenkins on
 
   firewall-cmd --zone=public --add-port=8080/tcp --permanent

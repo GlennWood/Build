@@ -2,6 +2,7 @@
 
 ### Configures the Vagrantfile for the CI/CD VM(s) in which to build and test DeterDevOpsTryout
 
+  export VM_NAME=DeterDevOpsTryout
   export VM_CN=jenkins-001.deterlab.work
   export VM_PORT_PREFIX=67
   export VM_ZONEINFO=US/Pacific

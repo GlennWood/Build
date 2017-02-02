@@ -1,0 +1,27 @@
+#!/bin/bash
+source /vagrant/environment $VM_MACHINE
+_leaf=$(basename $0)
+
+### Ref http://tecadmin.net/install-git-2-x-on-centos-rhel-and-fedora/#
+  [ -z "$GIT_VERSION" ] && export GIT_VERSION=2.11.0
+
+  echo "BEGIN build-vm/$_leaf ${GIT_VERSION}"
+
+  yum -y install curl-devel expat-devel gettext-devel openssl-devel zlib-devel
+  yum -y install gcc perl-ExtUtils-MakeMaker
+
+  pushd /usr/src
+  wget https://www.kernel.org/pub/software/scm/git/git-${GIT_VERSION}.tar.gz
+  tar -xzf git-${GIT_VERSION}.tar.gz
+
+  pushd git-${GIT_VERSION}
+    make prefix=/usr/local/git all
+    make prefix=/usr/local/git install
+  popd
+  export PATH=/usr/local/git/bin:$PATH
+
+  cat >> /etc/profile.d/00_vagrant_environment.sh << BASHRC_INIT
+export GIT_VERSION=${GIT_VERSION}
+export PATH=${PATH}
+export DETERDEVOPSTRYOUT_BUILDVM_INSTALLGIT_DONE='$(echo DONE `date`)'
+BASHRC_INIT

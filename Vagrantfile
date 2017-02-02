@@ -13,16 +13,15 @@ Vagrant.require_version ">=1.7.0"
 ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### ### 
 Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
-  config.vm.hostname = "DeterDevOpsTryout"
+  config.vm.hostname = ENV['VM_NAME']
 
   config.vm.box = "relativkreativ/centos-7-minimal"
-  config.vm.network :forwarded_port, guest:22, host: 6722, id: "ssh", disabled: false # SSH
-  #config.vm.provider "virtualbox" do |vbox|
-  #  vbox.name = "DeterDevOpsTryout"
-  #end
+  config.vm.provider "virtualbox" do |vbox|
+    vbox.name = ENV['VM_NAME']
+  end
 
-  config.vm.network :forwarded_port, guest: 22,   host: 6722, id: "ssh", disabled: false # SSH
-  config.vm.network :forwarded_port, guest: 8181, host: 8080 # Jenkins
+  config.vm.network :forwarded_port, guest: 22,   host: ENV['VM_PORT_PREFIX'] + "22", id: "ssh", disabled: false # SSH
+  config.vm.network :forwarded_port, guest: 8080, host: ENV['VM_PORT_PREFIX'] + "80" # Jenkins
   config.vm.network :private_network, type: "dhcp"
   config.ssh.forward_x11 = true
 
@@ -32,6 +31,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.provision 'init',    type: 'shell', privileged: true, inline: '/vagrant/build-vm/init'
+  config.vm.provision 'git-2',   type: 'shell', privileged: true, inline: '/vagrant/build-vm/install-git'
   config.vm.provision 'docker',  type: 'shell', privileged: true, inline: '/vagrant/build-vm/docker'
   config.vm.provision 'jenkins', type: 'shell', privileged: true, inline: '/vagrant/build-vm/jenkins'
   config.vm.provision 'final',   type: 'shell', privileged: true, inline: '/vagrant/build-vm/final'
