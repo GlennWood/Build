@@ -1,22 +1,6 @@
 version: '2'
 services:
 
-# Ref https://hub.docker.com/_/jenkins/
-  jenkins:
-    image: jenkins
-    container_name: jenkins
-    restart: always
-    ports:
-#      - 8180:8080
-      - 50000:50000
-    volumes:
-      - /singlefs-1/jenkins:/var/singlefs-1
-      - /var/run/postgresql/.s.PGSQL.5432
-      - /home/git:/home/git
-    links:
-      - postgres
-    user: root
-
   postgres:
     image: postgres
     container_name: postgres

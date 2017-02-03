@@ -1,0 +1,19 @@
+#!/bin/bash
+source /vagrant/environment $VM_MACHINE
+_leaf=$(basename $0)
+
+  ### Ref https://www.ruby-lang.org/en/documentation/installation/#yum
+  echo "BEGIN build-vm/$_leaf"
+  
+  yum -y install ruby
+  export RUBY_VERSION=$(ruby --version | sed 's/ruby //' | cut -f1 -d'p')
+  export RUBY_PATCH=$(ruby --version | sed 's/ruby //' | cut -f2 -d'p')
+
+  cat >> /etc/profile.d/00_vagrant_environment.sh << BASHRC_INIT
+export RUBY_VERSION=${RUBY_VERSION}
+export RUBY_PATCH=${RUBY_PATCH}
+export PATH=${PATH}
+export DETERDEVOPSTRYOUT_BUILDVM_INSTALLRUBY_DONE='$(echo DONE `date`)'
+BASHRC_INIT
+
+  echo "END build-vm/$_leaf" ; echo

@@ -1,16 +1,27 @@
 #!/bin/bash
 source /vagrant/environment $VM_MACHINE
 _leaf=$(basename $0)
+bold=$(tput bold) ; norm=$(tput sgr0)
 
   echo "BEGIN build-vm/$_leaf"
 
+  CLEANUP_YUM_STDOUT='==> default: ([.]|$)'
+  # TODO https://access.redhat.com/articles/1320623
+
   ln -sf /usr/share/zoneinfo/${VM_ZONEINFO} /etc/localtime
+
+  firewall-cmd --zone=public --add-port=22/tcp --permanent
+  firewall-cmd --reload
+
+  [ ! -d /root/.ssh ] && mkdir /root/.ssh && chown root:root /root/.ssh && chmod -R 0700 /root/.ssh
+  cat /home/vagrant/.ssh/authorized_keys >> /root/.ssh/authorized_keys
+  chown root:root /root/.ssh/authorized_keys && chmod -R 0700 /root/.ssh/authorized_keys
 
   yum makecache fast
   yum -y install deltarpm
 
   ### Vagrant/Virtualbox keeps losing /vagrant, so we preserve that content here
-  yum -y install rsync
+  yum -y install rsync  | grep -v "'$CLEANUP_YUM_STDOUT'"
   rsync -av --exclude="*.box" /vagrant/* /vagrant/.git* /home/vagrant/ >/dev/null
 
   VM_LOCAL_IP=`ip addr show | grep inet | grep -v inet6 | grep -v 10.0.2 | grep /24 | sed 's/.*inet\s*//' | cut -f1 -d'/'`
@@ -23,7 +34,17 @@ export VM_PORT_PREFIX=$VM_PORT_PREFIX
 export VM_ZONEINFO=$VM_ZONEINFO
 export DOCKER_VERSION=$DOCKER_VERSION
 export DOCKER_COMPOSE_VERSION=$DOCKER_COMPOSE_VERSION
+export CLEANUP_YUM_STDOUT="'$CLEANUP_YUM_STDOUT'"
+export bold=$bold
+export norm=$norm
+set_maj_min() {
+  export MAJ_MIN=`echo \$1 | sed -r 's/[.][0-9]+$//'`
+  export MAJMIN=`echo \$MAJ_MIN | sed -r 's/[.]//g'`
+  export MAJ=`echo \$MAJ_MIN | sed -r 's/[.][^.]*$//g'`
+}
 export DETERDEVOPSTRYOUT_BUILDVM_INIT_DONE='$(echo DONE `date`)'
 BASHRC_INIT
 
-  echo "END build-vm/$_leaf"
+  touch /etc/profile.d/99_vagrant_environment.sh && chown vagrant:vagrant /etc/profile.d/99_vagrant_environment.sh
+
+  echo "END build-vm/$_leaf" ; echo

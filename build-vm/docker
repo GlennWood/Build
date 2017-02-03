@@ -9,13 +9,13 @@ _leaf=$(basename $0)
   # rm -rf /var/lib/docker
 
   ### Ref https://docs.docker.com/engine/installation/linux/centos/
-  yum install -y yum-utils
+  yum install -y yum-utils | grep -v '^==> default:  $'
   yum-config-manager --add-repo https://docs.docker.com/engine/installation/linux/repo_files/centos/docker.repo
   yum makecache fast
   
   ###TODO yum list docker-engine.x86_64  --showduplicates | sort -r
   echo "INSTALLING docker-engine $DOCKER_VERSION (build-vm/$_leaf)"
-  yum -y install docker-engine $DOCKER_VERSION
+  yum -y install docker-engine $DOCKER_VERSION | grep -v '==> default: $'
   docker --version
 
   ### Ref https://docs.docker.com/engine/installation/linux/linux-postinstall/#/manage-docker-as-a-non-root-user
@@ -30,12 +30,13 @@ _leaf=$(basename $0)
   
   ### Ref https://docs.docker.com/compose/install/
   echo "INSTALLING docker-compose $DOCKER_COMPOSE_VERSION (build-vm/$_leaf)"
-  curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
-  chmod +x /usr/local/bin/docker-compose
+  curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > /usr/bin/docker-compose
+  chmod +x /usr/bin/docker-compose
   ### Ref https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-compose-on-centos-7
-  yum -y upgrade python*
-  curl -L https://raw.githubusercontent.com/docker/compose/${DOCKER_COMPOSE_VERSION}/contrib/completion/bash/docker-compose -o /etc/bash_completion.d/docker-compose
+  yum -y upgrade python* | grep -v '==> default: $'
   docker-compose --version
+
+  curl -L https://raw.githubusercontent.com/docker/compose/${DOCKER_COMPOSE_VERSION}/contrib/completion/bash/docker-compose -o /etc/bash_completion.d/docker-compose
 
   ln -sf /home/vagrant/docker-compose.yml    /root/docker-compose.yml
   ln -sf /home/vagrant/docker-compose.ci.yml /root/docker-compose.ci.yml

@@ -1,0 +1,24 @@
+#!/bin/bash
+source /vagrant/environment
+_leaf=$(basename $0)
+
+  ### Ref https://github.com/ipkn/crow
+  echo "BEGIN build-vm/$_leaf"
+
+  which cmake >/dev/null 2>/dev/null || yum -y install cmake
+
+  git clone https://github.com/ipkn/crow.git
+  pushd crow
+    mkdir build
+    cd build
+    cmake ..
+    make
+  popd
+
+  cat >> /etc/profile.d/00_vagrant_environment.sh << BASHRC_INIT
+export BOOST_ROOT=$BOOST_ROOT
+export BOOST_INCLUDEDIR=$BOOST_INCLUDEDIR
+export DETERDEVOPSTRYOUT_BUILDVM_INSTALLCROW_DONE='$(echo DONE `date`)'
+BASHRC_INIT
+
+  echo "END build-vm/$_leaf" ; echo

@@ -2,28 +2,25 @@
 _leaf=$(basename $0)
 
   echo "BEGIN build-vm/$_leaf"
-  echo
-  echo
 
-  echo "DOCKER:  "`docker --version`
-  echo "COMPOSE: "`docker-compose --version`
+  echo
+  echo "DOCKER:  "`docker --version | sed 's/Docker version //'`
+  echo "COMPOSE: "`docker-compose --version | sed 's/docker-compose version //'`
+  echo "JENKINS: "`java -jar /usr/lib/jenkins/jenkins.war --version`
+
+  echo
   echo "JAVA:    "$(java -version 2>&1 | grep 'openjdk version' | cut -f2 -d'"')
-  echo "GIT:     "$(git --version)
-
-  for tick in 0..59; do
-    [ -f /var/lib/jenkins/jenkins.install.UpgradeWizard.state ] && break
-    sleep 1
-  done
-  if [ -f /var/lib/jenkins/jenkins.install.UpgradeWizard.state ]; then
-    echo "JENKINS: "`cat /var/lib/jenkins/jenkins.install.UpgradeWizard.state`
-  fi
-
-  _LOCAL_IP=`ip addr show | grep inet | grep -v inet6 | grep -v 10.0.2 | grep /24 | sed 's/.*inet\s*//' | cut -f1 -d'/'`
-  echo "HOSTNAME: "`hostname`" IP_ADDR: $_LOCAL_IP PORT_PREFIX: $VM_PORT_PREFIX"
-  
-  sudo su - << VAGRANT_ENV
-echo "export DETERDEVOPSTRYOUT_BUILDVM_VERIFY_DONE='$(echo DONE `date`)'" >> /etc/profile.d/00_vagrant_environment.sh
-VAGRANT_ENV
+  echo "PYTHON3: "$(python3 -V | sed 's/Python //')
+  echo "NUITKA:  "$(nuitka --version)
+  echo "RUBY:    "$(ruby --version | sed 's/ruby //' | cut -f1 -d'p')
+  echo "GO:      "$(go version | sed 's/go version go//' | cut -f1 -d' ')
+  echo "COFFEE:  "$(coffee --version | sed 's/CoffeeScript version //')
+  echo "GIT:     "$(git --version | sed 's/git version //')
 
   echo
-  echo "END build-vm/$_leaf"
+  _LOCAL_IP=`ip addr show | grep inet | grep -v inet6 | grep -v 10.0.2 | grep /24 | sed 's/.*inet\s*//' | cut -f1 -d'/'`
+  echo ; echo "${norm}HOSTNAME=${bold}`hostname`${norm} VM_IP_ADDR=${bold}$_LOCAL_IP${norm} VM_PORT_PREFIX=${bold}$VM_PORT_PREFIX${norm}"
+
+  echo "export DETERDEVOPSTRYOUT_BUILDVM_VERIFY_DONE='$(echo DONE `date`)'" >> /etc/profile.d/99_vagrant_environment.sh
+
+  echo ; echo "END build-vm/$_leaf"

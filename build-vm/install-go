@@ -1,0 +1,24 @@
+#!/bin/bash
+source /vagrant/environment $VM_MACHINE
+_leaf=$(basename $0)
+
+  ### Ref https://golang.org/doc/install
+  [ -z "$GO_VERSION" ] && export GO_VERSION=1.7.5
+  [ -z "$GO_ARCH" ]    && export GO_ARCH=linux-amd64
+  echo "BEGIN build-vm/$_leaf ${GO_VERSION}.${GO_ARCH}"
+  
+  echo "START  wget https://storage.googleapis.com/golang/go${GO_VERSION}.${GO_ARCH}.tar.gz, `date`"
+  wget --quiet https://storage.googleapis.com/golang/go${GO_VERSION}.${GO_ARCH}.tar.gz
+  echo "FINISH wget https://storage.googleapis.com/golang/go${GO_VERSION}.${GO_ARCH}.tar.gz, `date`"
+  tar -C /usr/local -xzf go${GO_VERSION}.${GO_ARCH}.tar.gz
+  yes | rm go${GO_VERSION}.${GO_ARCH}.tar.gz 2>/dev/null
+  export PATH=$PATH:/usr/local/go/bin
+
+  cat >> /etc/profile.d/00_vagrant_environment.sh << BASHRC_INIT
+export GO_VERSION=${GO_VERSION}
+export GO_ARCH=${GO_ARCH}
+export PATH=${PATH}
+export DETERDEVOPSTRYOUT_BUILDVM_INSTALLGO_DONE='$(echo DONE `date`)'
+BASHRC_INIT
+
+  echo "END build-vm/$_leaf" ; echo

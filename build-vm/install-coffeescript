@@ -1,0 +1,16 @@
+#!/bin/bash
+source /vagrant/environment
+_leaf=$(basename $0)
+
+  ### Ref https://gist.github.com/adrienbrault/1401812/4c205f94f4db2b7108fa67c54c7911fbac193d92
+  echo "BEGIN build-vm/$_leaf"
+
+  yum -y install nodejs npm coffee-script --enablerepo=epel
+  export COFFEE_VERSION=$(coffee --version | sed 's/CoffeeScript version //')
+
+  cat >> /etc/profile.d/00_vagrant_environment.sh << BASHRC_INIT
+export COFFEE_VERSION=$COFFEE_VERSION
+export DETERDEVOPSTRYOUT_BUILDVM_INSTALLCOFFEE_DONE='$(echo DONE coffee-$COFFEE_VERSION `date`)'
+BASHRC_INIT
+
+  echo "END build-vm/$_leaf" ; echo

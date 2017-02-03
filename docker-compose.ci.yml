@@ -1,0 +1,14 @@
+version: '2'
+services:
+
+# Ref https://hub.docker.com/_/jenkins/
+  jenkins:
+    image: jenkins
+    container_name: jenkins
+    restart: always
+    ports:
+#      - 8180:8080
+      - 50000:50000
+#    links:
+#      - postgres
+    user: root

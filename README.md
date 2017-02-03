@@ -17,7 +17,7 @@ This takes about 10 minutes on a MacBook Pro
 
 To start over from scratch
 
-    source ./environment ; vagrant destroy -f ; vagrant up
+    source ./environment ; vagrant destroy -f ; time vagrant up
 
 * Work in the VM
 
@@ -25,7 +25,7 @@ To start over from scratch
 
 Or
 
-    ssh -p 6722 vagrant:vagrant@localhost
+    ssh -p 6722 root@localhost
 
 * Start docker containers
 
@@ -54,8 +54,18 @@ You may want to install [Jenkins Dependency Graph](https://wiki.jenkins-ci.org/d
 
 ## References
 
+* [The Research Software Engineer](https://dirkgorissen.com/2012/09/13/the-research-software-engineer/)
+* [Science Code Manifesto](http://sciencecodemanifesto.org/)
+
 * [Install Jenkins](https://www.vultr.com/docs/how-to-install-jenkins-on-centos-7)
 * [Jenkins Dependency Graph](https://wiki.jenkins-ci.org/display/JENKINS/Dependency+Graph+View+Plugin)
 
 * [Using Docker](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-compose-on-centos-7)
 
+* [Apache Maven FAQ](https://maven.apache.org/general.html)
+* [Jenkins Tutorial: How to Execute Python Scripts](http://www.craftycomputing.com/run-python-scripts-jenkins/)
+
+* [Install Ruby](https://www.ruby-lang.org/en/documentation/installation/)
+* [Ruby binaries](http://phusion.github.io/traveling-ruby/) and [Getting Started](https://github.com/phusion/traveling-ruby#getting-started)
+* [The Go Programming Language](https://golang.org/doc/install)
+* [Nuitka (python to binary)](http://nuitka.net/doc/user-manual.html)

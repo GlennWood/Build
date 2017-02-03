@@ -3,25 +3,31 @@ source /vagrant/environment $VM_MACHINE
 _leaf=$(basename $0)
 
 ### Ref http://tecadmin.net/install-git-2-x-on-centos-rhel-and-fedora/#
-  [ -z "$GIT_VERSION" ] && export GIT_VERSION=2.11.0
+
+  export GIT_VERSION=$1 ; shift
+  [ -z "$GIT_VERSION" ] && export BOOST_VERSION=2.11.0
 
   echo "BEGIN build-vm/$_leaf ${GIT_VERSION}"
 
-  yum -y install curl-devel expat-devel gettext-devel openssl-devel zlib-devel
-  yum -y install gcc perl-ExtUtils-MakeMaker
+  yum -y install curl-devel expat-devel gettext-devel openssl-devel zlib-devel | grep -v "'$CLEANUP_YUM_STDOUT'"
+  yum -y install gcc perl-ExtUtils-MakeMaker | grep -v "'$CLEANUP_YUM_STDOUT'"
 
   pushd /usr/src
-  wget https://www.kernel.org/pub/software/scm/git/git-${GIT_VERSION}.tar.gz
-  tar -xzf git-${GIT_VERSION}.tar.gz
-
-  pushd git-${GIT_VERSION}
-    make prefix=/usr/local/git all
-    make prefix=/usr/local/git install
+    echo "START  build-vm/$_leaf wget https://www.kernel.org/pub/software/scm/git/git-${GIT_VERSION}.tar.gz `date`"
+    wget --quiet https://www.kernel.org/pub/software/scm/git/git-${GIT_VERSION}.tar.gz
+    tar -xzf git-${GIT_VERSION}.tar.gz
+    echo "FINISH build-vm/$_leaf wget https://www.kernel.org/pub/software/scm/git/git-${GIT_VERSION}.tar.gz `date`"
+    pushd git-${GIT_VERSION}
+      make prefix=/usr/local/git all | grep -v '==> default:   '
+      make prefix=/usr/local/git install
+    popd
   popd
   export PATH=/usr/local/git/bin:$PATH
 
   cat >> /etc/profile.d/00_vagrant_environment.sh << BASHRC_INIT
 export GIT_VERSION=${GIT_VERSION}
 export PATH=${PATH}
-export DETERDEVOPSTRYOUT_BUILDVM_INSTALLGIT_DONE='$(echo DONE `date`)'
+export DETERDEVOPSTRYOUT_BUILDVM_INSTALLGIT_DONE='$(echo DONE git-$GIT_VERSION `date`)'
 BASHRC_INIT
+
+  echo "END build-vm/$_leaf" ; echo

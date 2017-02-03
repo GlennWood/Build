@@ -6,13 +6,13 @@ _leaf=$(basename $0)
 
   # Install a Jenkins-compatible version of java
   ### Ref https://wiki.jenkins-ci.org/display/JENKINS/Installing+Jenkins+on+Red+Hat+distributions#InstallingJenkinsonRedHatdistributions-ImportantNoteonCentOSJava
-  yum -y install java-1.8.0-openjdk
+  yum -y install java-1.8.0-openjdk | grep -v "'$CLEANUP_YUM_STDOUT'"
   java -version
 
   ### Ref https://wiki.jenkins-ci.org/display/JENKINS/Installing+Jenkins+on+Red+Hat+distributions
   wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo
   rpm --import https://jenkins-ci.org/redhat/jenkins-ci.org.key
-  yum -y install jenkins 'graphviz*'
+  yum -y install jenkins 'graphviz*' | grep -v "'$CLEANUP_YUM_STDOUT'"
 
   JOBS='Customer Waiter SousChef PizzaChef Mixer WoodbrickOven'
   pushd /var/lib/jenkins
@@ -24,15 +24,15 @@ _leaf=$(basename $0)
   done
   popd
 
-  service jenkins restart
-  chkconfig jenkins on
-
   firewall-cmd --zone=public --add-port=8080/tcp --permanent
   firewall-cmd --zone=public --add-service=http --permanent
   firewall-cmd --reload
+
+  service jenkins restart
+  chkconfig jenkins on
 
   cat >> /etc/profile.d/00_vagrant_environment.sh << BASHRC_INIT
 export DETERDEVOPSTRYOUT_BUILDVM_JENKINS_DONE='$(echo DONE `date`)'
 BASHRC_INIT
 
-  echo "END build-vm/$_leaf"
+  echo "END build-vm/$_leaf" ; echo

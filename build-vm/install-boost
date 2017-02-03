@@ -1,0 +1,35 @@
+#!/bin/bash
+source /vagrant/environment $VM_MACHINE
+_leaf=$(basename $0)
+
+### Ref http://www.boost.org/doc/libs/1_61_0/more/getting_started/unix-variants.html#easy-build-and-install
+
+  export BOOST_VERSION=$1 ; shift
+  [ -z "$BOOST_VERSION" ] && export BOOST_VERSION=1.63.0
+  WITHS=$*
+
+  echo "BEGIN build-vm/$_leaf $BOOST_VERSION $WITHS"
+
+  _BOOST_VERSION=$(echo $BOOST_VERSION | sed 's/[.]/_/g')
+  export BOOST_ROOT=/usr/lib/boost
+  mkdir -p $BOOST_ROOT
+  pushd $BOOST_ROOT
+    echo "START  https://sourceforge.net/projects/boost/files/boost/${BOOST_VERSION}/boost_${_BOOST_VERSION}.tar.gz, `date`"
+    wget --quiet https://sourceforge.net/projects/boost/files/boost/${BOOST_VERSION}/boost_${_BOOST_VERSION}.tar.gz
+    echo "FINISH https://sourceforge.net/projects/boost/files/boost/${BOOST_VERSION}/boost_${_BOOST_VERSION}.tar.gz, `date`"
+    tar -xzf boost_${_BOOST_VERSION}.tar.gz
+    cd boost_${_BOOST_VERSION}
+    ./bootstrap.sh --prefix=$BOOST_ROOT
+    ./b2 install $WITHS
+  popd
+  export BOOST_ROOT=${BOOST_ROOT}/${_BOOST_VERSION}
+  export BOOST_INCLUDEDIR=$BOOST_ROOT/libs
+
+  cat >> /etc/profile.d/00_vagrant_environment.sh << BASHRC_INIT
+export BOOST_VERSION=$BOOST_VERSION
+export BOOST_ROOT=$BOOST_ROOT
+export BOOST_INCLUDEDIR=$BOOST_INCLUDEDIR
+export DETERDEVOPSTRYOUT_BUILDVM_INSTALLBOOST_DONE='$(echo DONE boost-$BOOST_VERSION $WITHS `date`)'
+BASHRC_INIT
+
+  echo "END build-vm/$_leaf" ; echo

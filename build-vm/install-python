@@ -1,0 +1,24 @@
+#!/bin/bash
+source /vagrant/environment $VM_MACHINE
+_leaf=$(basename $0)
+
+  ### Ref https://www.digitalocean.com/community/tutorials/how-to-install-python-3-and-set-up-a-local-programming-environment-on-centos-7
+  [ -z "$PYTHON_VERSION" ] && export PYTHON_VERSION=3.4.6 # 3.5.2 not easily available for CentOS7
+  echo "BEGIN build-vm/$_leaf ${PYTHON_VERSION}"
+  
+  yum -y install https://centos7.iuscommunity.org/ius-release.rpm
+  yum -y install python34u-${PYTHON_VERSION}
+  python3 -V
+
+  ### Ref https://sourcecontribute.com/2015/05/02/compiling-python-to-standalone-executables-on-linux-using-nuitka/
+  http://download.opensuse.org/repositories/home:/kayhayen/RedHat_RHEL-7/noarch/nuitka-0.5.25-5.1.noarch.rpm
+  wget -O /etc/yum.repos.d/kayhayen.repo http://download.opensuse.org/repositories/home:/kayhayen/RedHat_RHEL-7/home:kayhayen.repo
+  yum -y install nuitka
+  echo "Nuitka version "$(nuitka --version)
+
+  cat >> /etc/profile.d/00_vagrant_environment.sh << BASHRC_INIT
+export GIT_VERSION=${GIT_VERSION}
+export DETERDEVOPSTRYOUT_BUILDVM_INSTALLPYTHON_DONE='$(echo DONE `date`)'
+BASHRC_INIT
+
+  echo "END build-vm/$_leaf" ; echo
