@@ -32,18 +32,25 @@ bold=$(tput bold) ; norm=$(tput sgr0)
 export VM_LOCAL_IP=$VM_LOCAL_IP
 export VM_PORT_PREFIX=$VM_PORT_PREFIX
 export VM_ZONEINFO=$VM_ZONEINFO
+export GIT_REPO=$GIT_REPO
+export GIT_REPOS=$GIT_REPOS
 export DOCKER_VERSION=$DOCKER_VERSION
 export DOCKER_COMPOSE_VERSION=$DOCKER_COMPOSE_VERSION
 export CLEANUP_YUM_STDOUT="'$CLEANUP_YUM_STDOUT'"
 export bold=$bold
 export norm=$norm
-set_maj_min() {
-  export MAJ_MIN=`echo \$1 | sed -r 's/[.][0-9]+$//'`
-  export MAJMIN=`echo \$MAJ_MIN | sed -r 's/[.]//g'`
-  export MAJ=`echo \$MAJ_MIN | sed -r 's/[.][^.]*$//g'`
-}
-export DETERDEVOPSTRYOUT_BUILDVM_INIT_DONE='$(echo DONE `date`)'
+export BUILDVM_INIT_DONE='$(echo DONE `date`)'
 BASHRC_INIT
+
+  cat >> /etc/profile.d/50_vagrant_environment.sh << 'MAJ_MIN'
+set_maj_min() {
+  export MAJ_MIN=`echo $1 | sed -r 's/[.][0-9]+$//'`
+  export MAJMIN=`echo $MAJ_MIN | sed -r 's/[.]//g'`
+  export MAJ=`echo $MAJ_MIN | sed -r 's/[.][^.]*$//g'`
+  export MAJ_MIN_=`echo $MAJ_MIN | sed -r 's/[.]/_/g'`
+  export MAJ_MIN_PATCH_=`echo $1 | sed -r 's/[.]/_/g'`
+}
+MAJ_MIN
 
   touch /etc/profile.d/99_vagrant_environment.sh && chown vagrant:vagrant /etc/profile.d/99_vagrant_environment.sh
 

@@ -1,0 +1,21 @@
+#!/bin/bash
+bold=$(tput bold) ; norm=$(tput sgr0)
+
+[ -n "$1" ] && VM_MACHINE=$1 && shift
+if [ -z "$VM_MACHINE" ]; then
+  [ -z "$VM_MACHINE" ] && VM_MACHINE=$VM_NAME
+  [ -z "$VM_MACHINE" ] && [ -f ./environment ] && source ./environment
+  [ -z "$VM_MACHINE" ] && echo "$0 requires an ${bold}export VM_MACHINE=${norm} parameter or environment setting" && exit 1
+fi
+
+echo -n "${bold}==> rebuild-vm: $VM_MACHINE${norm}"
+
+$(basename $0)/destroy-vm $VM_MACHINE
+
+# Filter out some of the useless output of `vagrant up`, like empty '==> default:  ' lines.
+grep 'config[.]vm[.]define' Vagrantfile >/dev/null 2>&1 && time vagrant up $VM_MACHINE 2>&1
+grep 'config[.]vm[.]define' Vagrantfile >/dev/null 2>&1 || time vagrant up 2>&1
+
+if [ -n "$PORT_PREFIX" ]; then
+  _port_user=`sudo netstat -ltpn | grep ${PORT_PREFIX}22`
+fi

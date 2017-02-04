@@ -1,0 +1,41 @@
+#!/bin/bash
+_leaf=$(basename $0)
+
+  echo "BEGIN build-vm/$_leaf"
+
+  ### Ref http://guide.munin-monitoring.org/en/latest/example/webserver/nginx.html
+  cat >> /etc/nginx/sites-enabled/default << NGINX_MUNIN
+location /munin/static/ {
+    alias /etc/munin/static/;
+}
+
+location /munin/ {
+    proxy_pass http://localhost:4948/;
+}
+NGINX_MUNIN
+
+  ### OR Ref https://www.howtoforge.com/tutorial/server-monitoring-with-munin-and-monit-on-centos/
+  #OR yum -y install epel-release
+  #OR rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-EPEL-7
+  #OR yum -y update
+  #OR yum -y install httpd
+  #OR systemctl enable httpd
+  #OR systemctl start httpd
+  
+  yum -y install munin munin-node
+  systemctl enable munin-node
+  systemctl start munin-node
+  cat >> /etc/munin/munin.conf << MUNIN_CONF
+# a simple host tree
+[server1.example.com]
+    address 127.0.0.1
+    use_node_name yes
+MUNIN_CONF
+  #TODO htpasswd /etc/munin/munin-htpasswd admin
+  # Wait a few minutes, then browse to http://server1.example.com/munin/
+
+  cat >> /etc/profile.d/00_vagrant_environment.sh << BASHRC_INIT
+export BUILDVM_INSTALLMUNIN_DONE='$(echo DONE `date`)'
+BASHRC_INIT
+
+  echo "END build-vm/$_leaf" ; echo

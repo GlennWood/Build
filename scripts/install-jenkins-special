@@ -1,0 +1,65 @@
+#!/bin/bash
+
+  if [ ! -f /etc/apt/sources.list.d/jenkins.list ]; then
+    wget -q -O - https://pkg.jenkins.io/debian/jenkins-ci.org.key | sudo apt-key add -
+    sudo sh -c 'echo deb http://pkg.jenkins.io/debian-stable binary/ > /etc/apt/sources.list.d/jenkins.list'
+  fi
+
+  apt-get -qq update
+  apt-get install -y jenkins
+
+  export JENKINS_HOME=/var/lib/jenkins
+  echo "export JENKINS_HOME=$JENKINS_HOME" >> ~/.bashrc
+  [ -d /home/git ] && echo "export JENKINS_HOME=$JENKINS_HOME" >> /home/git/.bashrc
+
+  ### TODO automate the setup wizard, otherwise there's this manual step while installing Jenkins
+  ### Ref https://issues.jenkins-ci.org/browse/JENKINS-34035
+  ### Perhaps automating the POST of the initialAdminPassword - /var/lib/jenkins/secrets/initialAdminPassword
+  ###     and "click Install Suggested Plugins"
+  ###     and "Create First Admin User"
+#
+# <form method="post" action="/setupWizard/createAdminUser"><h1>Create First Admin User</h1><div style="margin: 2em;"><table>
+#   <tr><td>Username:</td><td><input name="username" id="username" type="text" /></td></tr>
+#   <tr><td>Password:</td><td><input name="password1" type="password" /></td></tr>
+#   <tr><td>Confirm password:</td><td><input name="password2" type="password" /></td></tr>
+#   <tr><td>Full name:</td><td><input name="fullname" type="text" /></td></tr>
+#   <tr><td>E-mail address:</td><td><input name="email" type="text" /></td></tr>
+# </table></div></form>
+#
+  ###     and "Start using Jenkins"
+  ### jenkins.install.runSetupWizard=false
+
+  export CE_USER=dev-ops
+  export CE_NAME=singlefs-1-vm
+  export CE_ZONE=us-central1-f
+  which gcloud || /home/git/DevOps/build/bin/install-gcloud
+  [ -z "$JENKINS_HOME" ] && [ -d /var/lib/jenkins/ ] && export JENKINS_HOME=/var/lib/jenkins
+  [ -z "$JENKINS_HOME" ] && [ -d /var/jenkins_home/ ] && export JENKINS_HOME=/var/jenkins_home
+
+  gcloud compute copy-files ${CE_USER}@${CE_NAME}:/data/jenkins/jenkins-config.tgz jenkins-config.tgz --zone $CE_ZONE
+  mkdir jenkins-config ; pushd jenkins-config >/dev/null ; tar -xzf ../jenkins-config.tgz ; popd >/dev/null
+  /home/git/DevOps/build/jenkins/copy-jenkins-config jenkins-config /var/lib/jenkins
+
+  sed -i.bak 's/HTTP_PORT=8080/HTTP_PORT=8888/' /etc/default/jenkins
+  sed -i.bak 's|<useSecurity>false</useSecurity>|<useSecurity>true</useSecurity>|' /var/lib/jenkins/config.xml
+  [ -z "$CNAME" ] && echo "$0 requires an envVar ${bold}export CNAME=${norm}, defaulting to ${bold}demo${norm}" && export CNAME=demo
+  export VM_CNAME=$CNAME$CNAME_VARIANT
+  cat > /var/lib/jenkins/jenkins.model.JenkinsLocationConfiguration.xml << JENKINS_LOCATION
+<?xml version='1.0' encoding='UTF-8'?>
+<jenkins.model.JenkinsLocationConfiguration>
+  <adminAddress>&lt;dev-ops@veracity.work&gt;</adminAddress>
+  <jenkinsUrl>https://${VM_CNAME}.veracity.work/</jenkinsUrl>
+</jenkins.model.JenkinsLocationConfiguration>
+JENKINS_LOCATION
+  #TODO during the setup phase, Jenkins must pass through port 80
+  iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+  cat >> /etc/sysctl.conf << NET_IPV4_IP
+net.ipv4.ip_forward = 1
+NET_IPV4_IP
+
+  service jenkins restart
+  echo -n "Now do the Jenkins setup at browser ${bold}https://$CNAME.veracity.work/${norm} - when finished, hit enter here..."
+  read
+  sed -i.bak 's|<useSecurity>true</useSecurity>|<useSecurity>false</useSecurity>|' $JENKINS_HOME/config.xml
+  service jenkins restart
+  

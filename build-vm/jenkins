@@ -32,7 +32,7 @@ _leaf=$(basename $0)
   chkconfig jenkins on
 
   cat >> /etc/profile.d/00_vagrant_environment.sh << BASHRC_INIT
-export DETERDEVOPSTRYOUT_BUILDVM_JENKINS_DONE='$(echo DONE `date`)'
+export BUILDVM_JENKINS_DONE='$(echo DONE `date`)'
 BASHRC_INIT
 
   echo "END build-vm/$_leaf" ; echo

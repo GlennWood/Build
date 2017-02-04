@@ -1,0 +1,19 @@
+#!/bin/bash
+_leaf=$(basename $0)
+
+  echo "BEGIN build-vm/$_leaf"
+    
+  yum -y install monit | grep -v "'$CLEANUP_YUM_STDOUT'"
+  systemctl enable monit
+  systemctl start monit
+  #TODO see http://mmonit.com/wiki/Monit/ConfigurationExamples
+  #TODO see about ssl-certs at https://www.howtoforge.com/tutorial/server-monitoring-with-munin-and-monit-on-centos/2/
+
+  ### TODO configure in /etc/monitrc and /etc/monit.d/*.monit
+  ### Browse to https://admin:monit@localhost:2812/ 
+
+  cat >> /etc/profile.d/00_vagrant_environment.sh << BASHRC_INIT
+export BUILDVM_INSTALLMONIT_DONE='$(echo DONE `date`)'
+BASHRC_INIT
+
+  echo "END build-vm/$_leaf" ; echo

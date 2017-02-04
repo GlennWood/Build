@@ -1,0 +1,45 @@
+#!/bin/bash
+source /vagrant/environment $VM_MACHINE
+_leaf=$(basename $0)
+###FIXME UNTESTED
+
+  WEBMIN_LATEST=1.831
+  [ -n "$1" ] && export WEBMIN_VERSION=$1 && shift
+
+  [ "x$WEBMIN_VERSION" = "xLATEST" ] && export WEBMIN_VERSION=$WEBMIN_LATEST
+  [ -z "$WEBMIN_VERSION" ] && export WEBMIN_VERSION=CURRENT
+  echo "BEGIN build-vm/$_leaf ${WEBMIN_VERSION}"
+  
+  ### Ref http://www.webmin.com/rpm.html
+  if [ "x$WEBMIN_VERSION" = "xCURRENT" ]; then
+    cat >> /etc/yum.repos.d/webmin.repo << REPO
+[Webmin]
+name=Webmin Distribution Neutral
+#baseurl=http://download.webmin.com/download/yum
+mirrorlist=http://download.webmin.com/download/yum/mirrorlist
+enabled=1
+REPO
+    wget http://www.webmin.com/jcameron-key.asc
+    rpm --import jcameron-key.asc
+    yum -y install webmin 
+  else
+    wget --quiet http://prdownloads.sourceforge.net/webadmin/webmin-${WEBMIN_VERSION}-1.noarch.rpm \
+    & yum -y install perl perl-Net-SSLeay openssl perl-IO-Tty
+    rpm -U webmin-${WEBMIN_VERSION}-1.noarch.rpm  
+  fi
+  
+  
+#vi /etc/webmin/miniserv.conf
+## add follows to the end (IP addess you allow to access)
+#allow=127.0.0.1 10.0.0.0/24
+##
+#/etc/rc.d/init.d/webmin restart 
+
+
+
+  cat >> /etc/profile.d/00_vagrant_environment.sh << BASHRC_INIT
+export WEBMIN_VERSION=${WEBMIN_VERSION}
+export BUILDVM_INSTALLWEBMIN_DONE='$(echo DONE $WEBMIN_VERSION `date`)'
+BASHRC_INIT
+
+  echo "END build-vm/$_leaf" ; echo

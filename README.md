@@ -1,6 +1,13 @@
 # Build
 The build environment (Jenkins) for DeterDevOpsTryout
 
+## Prerequisites
+
+* [Vagrant](https://www.vagrantup.com/downloads.html)
+* [vagrant-vbguest](https://github.com/dotless-de/vagrant-vbguest)
+
+    vagrant plugin install vagrant-vbguest
+
 ## Building the Build Environment
 
 * Get the source code
@@ -19,6 +26,19 @@ To start over from scratch
 
     source ./environment ; vagrant destroy -f ; time vagrant up
 
+* Rebuild and/or Destroy VM
+
+Sometimes heroic efforts are required to rebuild a VM; `vagrant destroy` reports that 
+the VM doesn't exist, while `vagrant up` says it already exists (this can happen sometimes 
+if you abort a `vagrant up` while it is in the initial phase of building the VM).
+Two scripts have been composed to deal with this situation:
+
+    scripts/destroy-vm $VM_NAME
+    scripts/rebuild-vm $VM_NAME
+
+(`rebuild-vm` starts its process with a `destroy-vm`)
+
+
 * Work in the VM
 
     vagrant ssh
@@ -36,7 +56,7 @@ Or
 
 * The Jenkins Server
 
-Now you have the following URL - http://localhost:6780 (the "67" comes from VM_PORT_PREFIX in the `environment` file).
+Now you have the following URL - [http://localhost:6780](http://localhost:6780) (the "67" comes from VM_PORT_PREFIX in the `environment` file).
 
 You will need to go there to manually initialize Jenkins (this will be automated eventually).
 
@@ -58,8 +78,6 @@ You may want to install [Jenkins Dependency Graph](https://wiki.jenkins-ci.org/d
 * [Science Code Manifesto](http://sciencecodemanifesto.org/)
 
 * [Install Jenkins](https://www.vultr.com/docs/how-to-install-jenkins-on-centos-7)
-* [Jenkins Dependency Graph](https://wiki.jenkins-ci.org/display/JENKINS/Dependency+Graph+View+Plugin)
-
 * [Using Docker](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-compose-on-centos-7)
 
 * [Apache Maven FAQ](https://maven.apache.org/general.html)

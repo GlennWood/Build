@@ -20,16 +20,16 @@ _leaf=$(basename $0)
     tar -xzf boost_${_BOOST_VERSION}.tar.gz
     cd boost_${_BOOST_VERSION}
     ./bootstrap.sh --prefix=$BOOST_ROOT
-    ./b2 install $WITHS
+    ./b2 install $WITHS | grep -v "common.(copy|mkdir) $BOOST_ROOT"
   popd
-  export BOOST_ROOT=${BOOST_ROOT}/${_BOOST_VERSION}
-  export BOOST_INCLUDEDIR=$BOOST_ROOT/libs
+  export BOOST_ROOT=${BOOST_ROOT}/boost_${_BOOST_VERSION}
+  export BOOST_INCLUDEDIR=$BOOST_ROOT/boost
 
   cat >> /etc/profile.d/00_vagrant_environment.sh << BASHRC_INIT
 export BOOST_VERSION=$BOOST_VERSION
 export BOOST_ROOT=$BOOST_ROOT
 export BOOST_INCLUDEDIR=$BOOST_INCLUDEDIR
-export DETERDEVOPSTRYOUT_BUILDVM_INSTALLBOOST_DONE='$(echo DONE boost-$BOOST_VERSION $WITHS `date`)'
+export BUILDVM_INSTALLBOOST_DONE='$(echo DONE boost-$BOOST_VERSION $WITHS `date`)'
 BASHRC_INIT
 
   echo "END build-vm/$_leaf" ; echo

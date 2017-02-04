@@ -11,9 +11,9 @@ _leaf=$(basename $0)
 
   cat >> /etc/profile.d/00_vagrant_environment.sh << BASHRC_INIT
 export RUBY_VERSION=${RUBY_VERSION}
-export RUBY_PATCH=${RUBY_PATCH}
+export RUBY_PATCH='${RUBY_PATCH}'
 export PATH=${PATH}
-export DETERDEVOPSTRYOUT_BUILDVM_INSTALLRUBY_DONE='$(echo DONE `date`)'
+export BUILDVM_INSTALLRUBY_DONE='$(echo DONE `date`)'
 BASHRC_INIT
 
   echo "END build-vm/$_leaf" ; echo

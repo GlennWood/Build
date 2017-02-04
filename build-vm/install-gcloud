@@ -1,0 +1,15 @@
+#!/bin/bash
+
+  GCLOUD_VERSION=136.0.0
+
+  ### Ref https://cloud.google.com/sdk/downloads
+  wget https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-136.0.0-linux-x86_64.tar.gz
+  tar -xzf google-cloud-sdk-${GCLOUD_VERSION}-linux-x86_64.tar.gz
+  ./google-cloud-sdk/install.sh << GCLOUD
+n
+Y
+/root/.bashrc
+GCLOUD
+
+  ./google-cloud-sdk/bin/gcloud init
+

@@ -1,0 +1,34 @@
+#!/bin/bash
+
+bold=$(tput bold) ; norm=$(tput sgr0)
+
+[ -n "$1" ] && VM_MACHINE=$1 && shift
+if [ -z "$VM_MACHINE" ]; then
+  [ -z "$VM_MACHINE" ] && VM_MACHINE=$VM_NAME
+  [ -z "$VM_MACHINE" ] && [ -f ./environment ] && source ./environment
+  [ -z "$VM_MACHINE" ] && echo "$0 requires an ${bold}export VM_MACHINE=${norm} parameter or environment setting" && exit 1
+fi
+
+echo -n "${bold}==> destroy-vm: $VM_MACHINE${norm}"
+
+_vm_home=`vagrant global-status | grep $VM_MACHINE | cut -f6 -d' '`
+_vm_poweroff=`vagrant global-status | grep $VM_MACHINE | cut -f5 -d' '`
+
+vagrant destroy $VM_MACHINE --force 2>/dev/null || echo Vagrant said $VM_MACHINE was not up
+
+# In some scenarios, Vagrant does not fully remove the box from VBoxManage
+if [ ! "X$_vm_poweroff" = "Xpoweroff" ]; then
+  VBoxManage controlvm $VM_MACHINE poweroff 2>/dev/null && echo Stopped VirtualBox $VM_MACHINE || echo VirtualBox $VM_MACHINE was not running
+fi
+echo -n "${bold}==> destroy-vm: ${norm}"
+VBoxManage unregistervm --delete $VM_MACHINE 2>/dev/null && echo Unregistered VirtualBox $VM_MACHINE || echo VirtualBox $VM_MACHINE was not registered
+
+## TODO sometimes it says it destroyed it but didn't
+## #vagrant global-status | grep $VM_MACHINE
+## #... e2111cf  ubuntu-14.04-minimal virtualbox poweroff /home/vbox/git/vios-common/build/minimal
+_vm_home=`vagrant global-status | grep $VM_MACHINE | cut -f6 -d' '`
+_vm_poweroff=`vagrant global-status | grep $VM_MACHINE | cut -f5 -d' '`
+_VM_MACHINE=`vagrant global-status | grep $VM_MACHINE | cut -f1 -d' '`
+vagrant destroy $_VM_MACHINE -f
+rm -rf $_vm_home/.vagrant/machines/$VM_MACHINE
+rm -rf ~/VirtualBox\ VMs/$VM_MACHINE

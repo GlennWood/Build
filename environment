@@ -10,5 +10,12 @@
   export VM_CPUS=1
   export VM_MEMORY=4096
 
+  _GIT_ROOT=/Users/$USER/Documents/workspace/$VM_NAME/
+  export VM_GIT_REPOS="$_GIT_ROOT/Build:$_GIT_ROOT/Customer:$_GIT_ROOT/Mixer:$_GIT_ROOT/PizzaChef:$_GIT_ROOT/SousChef:$_GIT_ROOT/Waiter:$_GIT_ROOT/WoodbrickOven"
+  export GIT_REPO='git@github.com:GlennWood'
+  export GIT_REPOS='Customer Waiter SousChef PizzaChef Mixer WoodbrickOven'
+
   export DOCKER_VERSION=1.13.0
   export DOCKER_COMPOSE_VERSION=1.10.0
+
+  export VBGUEST_AUTO_UPDATE=true

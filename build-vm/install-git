@@ -27,7 +27,7 @@ _leaf=$(basename $0)
   cat >> /etc/profile.d/00_vagrant_environment.sh << BASHRC_INIT
 export GIT_VERSION=${GIT_VERSION}
 export PATH=${PATH}
-export DETERDEVOPSTRYOUT_BUILDVM_INSTALLGIT_DONE='$(echo DONE git-$GIT_VERSION `date`)'
+export BUILDVM_INSTALLGIT_DONE='$(echo DONE git-$GIT_VERSION `date`)'
 BASHRC_INIT
 
   echo "END build-vm/$_leaf" ; echo

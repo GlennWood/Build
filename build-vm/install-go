@@ -18,7 +18,7 @@ _leaf=$(basename $0)
 export GO_VERSION=${GO_VERSION}
 export GO_ARCH=${GO_ARCH}
 export PATH=${PATH}
-export DETERDEVOPSTRYOUT_BUILDVM_INSTALLGO_DONE='$(echo DONE `date`)'
+export BUILDVM_INSTALLGO_DONE='$(echo DONE `date`)'
 BASHRC_INIT
 
   echo "END build-vm/$_leaf" ; echo
